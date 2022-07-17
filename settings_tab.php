@@ -110,18 +110,25 @@ function mainoptionPageContent()
                                         <?php
 
                                         foreach ($wc_shipping_methods as $wc_method) {
-                                            $settings = get_option("pl-product-".$wc_method["Id"]); ?>
-                                            
+                                            $settings = get_option("pl-product-".$wc_method["Id"]); 
+                                            if(!$settings)
+                                            {
+                                                $settings = array(); 
+                                                $settings["PId"] = [];
+                                                $settings['Pquantity'] =1;
+                                            }?>
                                             <tr>
 
                                                 <td class="wc-method-name">
                                                     <?php echo $wc_method["Title"] ?>
                                                 </td>
-                                                <td class="pl-product-name">
+                                                <td class="pl-product-name chosen-select">
                                                     <select class="form-control pl-product multi-select"
-                                                        id="pl-product-<?php echo $wc_method["Id"]?>" name = "pl-product-<?php echo $wc_method['Id']?>[PId][]" style="width:150px;" required multiselect>
+                                                        id="pl-product-<?php echo $wc_method["Id"]?>" name = "pl-product-<?php echo $wc_method['Id']?>[PId][]" style="width:150px;" required multiple>
+
                                                             <?php
                                                                 foreach ($pl_products as $i=>$value) {
+
                                                                     ?>
                                                                      <option name = "pl-product-<?php echo $wc_method['Id']?>[PId]" value = "<?php echo $value->productid?>" 
                                                                                  <?php echo in_array( $value->productid, $settings["PId"])?'selected' : ''?>><?php echo $value->name; ?></option>
