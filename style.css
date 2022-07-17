@@ -1,39 +1,43 @@
-
 #pl-token {
-    width: 400px;
-    direction: rtl;
+  width: 400px;
+  direction: rtl;
 }
 
 #reset_btn {
-    background-color: white;
-    color: #e41818;
-    border: #e41818 0.1rem solid;
-    border-radius: 5px;
-    text-align: center;
-    width: auto;
-    /* width: 100px; */
-    height: auto;
-    font-size: 14px;
-    line-height: 1.5em;
-    -webkit-appearance: none;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    cursor: pointer;
+  background-color: white;
+  color: #e41818;
+  border: #e41818 0.1rem solid;
+  border-radius: 5px;
+  text-align: center;
+  width: auto;
+  /* width: 100px; */
+  height: auto;
+  font-size: 14px;
+  line-height: 1.5em;
+  -webkit-appearance: none;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  cursor: pointer;
 }
 #reset_btn:hover {
-    background-color: #e41818;
-    color: white;
+  background-color: #e41818;
+  color: white;
 }
 #reset_btn:active,
 #reset_btn:focus {
-    border: #e41818 0.1rem solid;
-    outline: none;
+  border: #e41818 0.1rem solid;
+  outline: none;
 }
 .input-field {
-    /* margin-bottom: 30px; */
-    direction: rtl;
-    margin-right:30px ;
+  /* margin-bottom: 30px; */
+  direction: rtl;
+  margin-right: 30px;
 }
-.input-field input, .input-field select{
-    width: 400px;
+.input-field input,
+.input-field select {
+  width: 400px;
+}
+
+.chosen-select .multi-select {
+  display: none;
 }

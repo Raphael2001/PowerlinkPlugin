@@ -21,11 +21,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function pl_scripts() {
 
-	// Register Scripts
-	wp_register_script( 'sctipt_admin', plugins_url( 'js/app.js', __FILE__ ), array( 'jquery' ), true );
+	wp_register_script( 'jquery_script', plugins_url( 'js/jquery.js', __FILE__ ), array( 'jquery' ), true );
 
-	// Enqueue Scripts
-	wp_enqueue_script( 'sctipt_admin' );
+	wp_register_script( 'script_admin', plugins_url( 'js/app.js', __FILE__ ), array( 'jquery' ), true );
+
+	wp_register_script( 'multiselect_script', plugins_url( 'js/dropdown.min.js', __FILE__ ), array( 'jquery' ), true );
+	
+	wp_enqueue_script( 'jquery_script' );
+
+	wp_enqueue_script( 'script_admin' );
+
+	wp_enqueue_script( 'multiselect_script' );
 
 
 
@@ -47,8 +53,14 @@ function pl_styles() {
 	// Register Styles
 	wp_register_style( 'pl_styles', plugins_url( 'style.css', __FILE__ ), true);
 
+
+	// Register Styles
+	wp_register_style( 'multiselect_style', plugins_url( 'jquery.dropdown.min.css', __FILE__ ), true);
+
 	// Enqueue Styles
 	wp_enqueue_style( 'pl_styles' );
+	wp_enqueue_style( 'multiselect_style' );
+
 
 }
 add_action( 'admin_enqueue_scripts', 'pl_styles' );

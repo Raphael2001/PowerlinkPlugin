@@ -1,8 +1,8 @@
 <?php
 const BASE_URL_PowerLink= "https://api.powerlink.co.il/api/";
 $today = date("DD/MM/YYYY");
-// $seller_id = "4";
-// $order_id="";
+$seller_id = "4";
+$order_id="";
 
 $client= array(
     "accountid"=>"0",
@@ -24,9 +24,8 @@ function startsWith($string, $startString)
 function create_acquisition($product, $client, $date, $code_coupon)
 {
     global $client;
-    // global $order_id;
-
-    //global $seller_id;
+    global $order_id;
+    global $seller_id;
     
     $url = BASE_URL_PowerLink .'record/AccountProduct';
     $data = array(
@@ -35,11 +34,16 @@ function create_acquisition($product, $client, $date, $code_coupon)
             "price"=> $product["price"] * $product["quantity"],
             "accountid"=>"$client[accountid]",
             "pcfpurchasedate"=>$date,
-            // "pcfseller"=> "4",
-            // "pcfcouponname"=>$code_coupon,
-            // "pcforderid"=>"$order_id",
 
       );
+
+      if($store_name == "homoetreat"){
+            $data["pcfNote"] = "$product[note]";
+            $data["pcfseller"] = "4";
+            $data["pcfcouponname"] = $code_coupon;
+            $data["pcforderid"] = "$order_id";
+
+      }
       
     $result = basic_post_with_curl($url, $data);
 }
@@ -125,9 +129,11 @@ function create_client()
           "billingstreet"=>"$client[billingstreet]",
           "pcfaddressnote" =>"$client[comment]",
           "originatingleadcode"=>"1", // מקור הגעה : אינטרנט
-        //   "statuscode"=>"45", // לקוח פעיל
-        //   "pcflastorderid"=>"$order_id", // מספר הזמנה אחרונה
         );
+    if($store_name == "homoetreat"){
+        $data["statuscode"] ="45"; // לקוח פעיל
+        $data["pcflastorderid"] ="$order_id";// מספר הזמנה אחרונה
+    }   
     $url='https://api.powerlink.co.il/api/record/account';
     $data_string = json_encode($data);
     basic_post_with_curl($url, $data);
@@ -164,11 +170,14 @@ function update_client()
         "accountname"=>  "$client[firstname] $client[lastname]",
         "firstname"=>"$client[firstname]",
         "lastname"=>"$client[lastname]",
-        // "pcfaddressnote" =>"$client[comment]",
-        // "statuscode"=>"45", // לקוח פעיל
-        // "pcflastorderid"=>"$order_id", // מספר הזמנה אחרונה
 
     );
+    if($store_name == "homoetreat"){
+        $data["pcfaddressnote"] = "$client[comment]";
+        $data["statuscode"] = "45";// לקוח פעיל
+        $data["pcflastorderid"] = "$order_id";// מספר הזמנה אחרונה
+    }
+
     if ($client["billingcity"] != "") {
         $data["billingcity"] = $client["billingcity"];
     }
@@ -179,12 +188,15 @@ function update_client()
     basic_put_with_curl($url, $data);
 }
 
-function get_product_to_array($product_id, $price_per_one, $quantity)
+function get_product_to_array($product_id, $price_per_one, $quantity, $note="")
 {
     $product = array(
         "productid"=>$product_id,
         "price"=>$price_per_one,
-        "quantity"=>$quantity, );
+        "quantity"=>$quantity,
+        "note" =>"$note",
+    
+    );
     return $product;
 }
 
@@ -227,29 +239,37 @@ function get_code_coupon($order)
 }
 
 
-
 function on_order_complete()
 {
     global $client;
-    // global $order_id;
+    global $order_id;
     $products = array();
     $order_id = get_the_ID();
     $order = wc_get_order($order_id);
     
     $purchase_date = $order->get_date_created();
     $purchase_date = date('Y-m-d', strtotime($purchase_date));
+
+    $apar=""; 
+    $floor="";
+    $leaving="";
+    $_comment="";
     
-    // $apar = get_post_meta($order_id, "_billing_apar", true);
-    // $apar = check_comment_powerlink($apar, "דירה");
+    if($store_name == "homoetreat"){
+ 
+        $apar = get_post_meta($order_id, "_billing_apar", true);
+        $apar = check_comment_powerlink($apar, "דירה");
 
-    // $floor = get_post_meta($order_id, "_billing_floor", true);
-    // $floor = check_comment_powerlink($floor, "קומה");
+        $floor = get_post_meta($order_id, "_billing_floor", true);
+        $floor = check_comment_powerlink($floor, "קומה");
 
-    // $leaving = get_post_meta($order_id, " _billing_leaving", true);
-    // $leaving = check_comment_powerlink($leaving, "באין מענה להשאיר");
+        $leaving = get_post_meta($order_id, " _billing_leaving", true);
+        $leaving = check_comment_powerlink($leaving, "באין מענה להשאיר");
 
-    // $comments=array($order->get_customer_note(), $apar,  $floor, $leaving);
-    // $_comment = get_comments_string_powerlink($comments);
+        $comments=array($order->get_customer_note(), $apar,  $floor, $leaving);
+        $_comment = get_comments_string_powerlink($comments);
+    }
+   
 
     $client["firstname"]= $order->get_billing_first_name();
     $client["lastname"]= $order->get_billing_last_name();
@@ -257,7 +277,11 @@ function on_order_complete()
     $client["emailaddress"]= $order->get_billing_email();
     $client["billingstreet"]=$order->get_billing_address_1() . ' ' . $order->get_billing_address_2();
     $client["billingcity"]=$order->get_billing_city();
-    // $client["comment"]=$_comment;
+
+    if($store_name == "homoetreat"){
+        $client["comment"]=$_comment;
+
+    }
     
     $object = get_client_id();
     $code_coupon = "";
@@ -278,16 +302,22 @@ function on_order_complete()
 
         $settings = get_option("pl-product-".$product_id);
         $pl_quantity = $settings["Pquantity"];
-        $pl_Id = $settings["PId"];
+        $pl_Ids = $settings["PId"];
+        foreach($pl_Ids as $pl_Id)
+        {
+            // $order->add_order_note($pl_id);
+            
+            $quantity = $item->get_quantity();
+            $quantity =  $quantity * $pl_quantity;
+            $total = $item->get_total();
+            $price = $total/$quantity/count($pl_Ids);
+            $product = get_product_to_array($pl_Id, $price, $quantity);
 
-        $quantity = $item->get_quantity();
-        $quantity =  $quantity * $pl_quantity;
-        $total = $item->get_total();
-        $price = $total/$quantity;
-        $product = get_product_to_array($pl_Id, $price, $quantity);
-        create_acquisition($product, $client, $purchase_date, $code_coupon);
+            $note = count($pl_Ids)>1?$item->get_name():"";
 
-        // $order->add_order_note($client["accountid"]);
+            create_acquisition($product, $client, $purchase_date, $code_coupon, $note);
+        }
+
     }
 
     foreach ($order->get_items('shipping') as $item_id => $item) {
@@ -296,14 +326,18 @@ function on_order_complete()
 
         $settings = get_option("pl-product-"."Method".$shipping_method_instance_id);
         $pl_quantity = $settings["Pquantity"];
-        $pl_Id = $settings["PId"];
+        $pl_Ids = $settings["PId"];
 
-        $quantity = 1;
-        $quantity =  $quantity * $pl_quantity;
-        $total = $shipping_method_total;
-        $price = $total/$quantity;
-        $product = get_product_to_array($pl_Id, $price, $quantity);
-        create_acquisition($product, $client, $purchase_date, "");
+        foreach($pl_Ids as $pl_Id)
+        {
+
+            $quantity = 1;
+            $quantity =  $quantity * $pl_quantity;
+            $total = $shipping_method_total;
+            $price = $total/$quantity/count($pl_Ids);
+            $product = get_product_to_array($pl_Id, $price, $quantity);
+            create_acquisition($product, $client, $purchase_date, "");
+        }
     }
 }
 

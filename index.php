@@ -20,8 +20,8 @@
 if (! defined('ABSPATH')) {
     exit;
 }
-
-
+// $store_name ="regular";
+// $store_name = "homoetreat";
 
 /**
  * Include plugin files
@@ -29,3 +29,4 @@ if (! defined('ABSPATH')) {
 include_once(plugin_dir_path(__FILE__) . 'settings_tab.php');
 include_once(plugin_dir_path(__FILE__) . 'scripts-styles.php');
 include_once(plugin_dir_path(__FILE__) . 'create.php');
+// die('<hr /><pre>' . print_r(array($store_name,  '<br />Here: ' . __LINE__ . ' at ' . __FILE__), true) . '</pre><hr />');
