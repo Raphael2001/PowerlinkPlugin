@@ -26,6 +26,8 @@ function create_acquisition($product, $client, $date, $code_coupon)
     global $client;
     global $order_id;
     global $seller_id;
+    global $store_name;
+
     
     $url = BASE_URL_PowerLink .'record/AccountProduct';
     $data = array(
@@ -119,6 +121,8 @@ function create_client()
 {
     global $client;
     global $order_id;
+    global $store_name;
+
     $data = array(
           "telephone1"=> "$client[telephone]",
           "emailaddress1"=> "$client[emailaddress]",
@@ -133,6 +137,7 @@ function create_client()
     if($store_name == "homoetreat"){
         $data["statuscode"] ="45"; // לקוח פעיל
         $data["pcflastorderid"] ="$order_id";// מספר הזמנה אחרונה
+        $data["originatingleadcode"] = "19";// ריגו -אתר
     }   
     $url='https://api.powerlink.co.il/api/record/account';
     $data_string = json_encode($data);
@@ -162,8 +167,8 @@ function update_client()
     global $client;
     $url=BASE_URL_PowerLink .'record/account/'.$client["accountid"];
     global $order_id;
-
-   
+    global $store_name;
+    
     $data = array(
         "telephone1"=> "$client[telephone]",
         "emailaddress1"=> "$client[emailaddress]",
@@ -176,6 +181,7 @@ function update_client()
         $data["pcfaddressnote"] = "$client[comment]";
         $data["statuscode"] = "45";// לקוח פעיל
         $data["pcflastorderid"] = "$order_id";// מספר הזמנה אחרונה
+
     }
 
     if ($client["billingcity"] != "") {
@@ -243,6 +249,7 @@ function on_order_complete()
 {
     global $client;
     global $order_id;
+    global $store_name;
     $products = array();
     $order_id = get_the_ID();
     $order = wc_get_order($order_id);

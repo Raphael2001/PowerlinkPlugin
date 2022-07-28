@@ -20,7 +20,7 @@
 if (! defined('ABSPATH')) {
     exit;
 }
-// $store_name ="regular";
+$store_name ="regular";
 // $store_name = "homoetreat";
 
 /**
