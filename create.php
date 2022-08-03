@@ -318,11 +318,12 @@ function on_order_complete()
             $quantity =  $quantity * $pl_quantity;
             $total = $item->get_total();
             $price = $total/$quantity/count($pl_Ids);
-            $product = get_product_to_array($pl_Id, $price, $quantity);
-
             $note = count($pl_Ids)>1?$item->get_name():"";
 
-            create_acquisition($product, $client, $purchase_date, $code_coupon, $note);
+            $product = get_product_to_array($pl_Id, $price, $quantity, $note);
+
+
+            create_acquisition($product, $client, $purchase_date, $code_coupon);
         }
 
     }
