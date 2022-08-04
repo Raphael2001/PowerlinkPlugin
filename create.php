@@ -40,7 +40,7 @@ function create_acquisition($product, $client, $date, $code_coupon)
       );
 
       if($store_name == "homoetreat"){
-            $data["pcfNote"] = "$product[note]";
+            $data["description"] = "$product[note]";
             $data["pcfseller"] = "4";
             $data["pcfcouponname"] = $code_coupon;
             $data["pcforderid"] = "$order_id";
