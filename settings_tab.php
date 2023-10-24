@@ -2,6 +2,7 @@
 if (! defined('ABSPATH')) {
     exit;
 }
+
 const BASE_URL= "https://api.powerlink.co.il/";
 
 function remove_submenus()
@@ -69,7 +70,7 @@ function mainoptionPageContent()
                                             if(!$settings)
                                             {
                                                 $settings = array(); 
-                                                $settings["PId"] = -1;
+                                                $settings["PId"] = [];
                                                 $settings['Pquantity'] =1;
                                             }
 
@@ -79,15 +80,16 @@ function mainoptionPageContent()
                                                     <td class="wc-product-name">
                                                             <?php echo $wc_prod["Name"] ?>
                                                     </td>
-                                                    <td class="pl-product-name">
-                                                        <select class="form-control pl-product"
-                                                        id="pl-product-<?php echo $wc_prod["Id"]?>" name = "pl-product-<?php echo $wc_prod['Id']?>[PId]"style="width:150px;" required>
-                                                                    <option value="" disabled selected hidden>שם מוצר</option> 
+                                                    <td class="pl-product-name chosen-select" >
+                                                        <select class="form-control pl-product multi-select"
+                                                        id="pl-product-<?php echo $wc_prod["Id"]?>" name = "pl-product-<?php echo $wc_prod['Id']?>[PId][]"style="width:150px;" required multiple >
                                                                         <?php
-
                                                                         foreach ($pl_products as $i=>$value) {
+
                                                                             ?>
-                                                                                <option name = "pl-product-<?php echo $wc_prod['Id']?>[PId]" value = "<?php echo $value->productid?>" <?php selected($settings["PId"], $value->productid)?>><?php echo $value->name; ?></option>
+
+                                                                                <option name = "pl-product-<?php echo $wc_prod['Id']?>[PId]" value = "<?php echo $value->productid?>" 
+                                                                                 <?php echo in_array( $value->productid, $settings["PId"])?'selected' : ''?>><?php echo $value->name; ?></option>
                                                                             <?php
                                                                         } ?>
                                                         </select>
@@ -108,22 +110,29 @@ function mainoptionPageContent()
                                         <?php
 
                                         foreach ($wc_shipping_methods as $wc_method) {
-                                            $settings = get_option("pl-product-".$wc_method["Id"]); ?>
-                                            
+                                            $settings = get_option("pl-product-".$wc_method["Id"]); 
+                                            if(!$settings)
+                                            {
+                                                $settings = array(); 
+                                                $settings["PId"] = [];
+                                                $settings['Pquantity'] =1;
+                                            }?>
                                             <tr>
 
                                                 <td class="wc-method-name">
                                                     <?php echo $wc_method["Title"] ?>
                                                 </td>
-                                                <td class="pl-product-name">
-                                                    <select class="form-control pl-product"
-                                                        id="pl-product-<?php echo $wc_method["Id"]?>" name = "pl-product-<?php echo $wc_method['Id']?>[PId]" style="width:150px;" required>
-                                                            <option value="" disabled selected hidden>שם מוצר</option> 
+                                                <td class="pl-product-name chosen-select">
+                                                    <select class="form-control pl-product multi-select"
+                                                        id="pl-product-<?php echo $wc_method["Id"]?>" name = "pl-product-<?php echo $wc_method['Id']?>[PId][]" style="width:150px;" required multiple>
+
                                                             <?php
                                                                 foreach ($pl_products as $i=>$value) {
+
                                                                     ?>
-                                                            <option name = "pl-product-<?php echo $wc_method['Id']?>[PId]" value = "<?php echo $value->productid?>" <?php selected($settings["PId"], $value->productid)?>><?php echo $value->name ?></option>
-                                                            <?php
+                                                                     <option name = "pl-product-<?php echo $wc_method['Id']?>[PId]" value = "<?php echo $value->productid?>" 
+                                                                                 <?php echo in_array( $value->productid, $settings["PId"])?'selected' : ''?>><?php echo $value->name; ?></option>
+                                                                    <?php
                                                                 } ?>
                                                                                                     
                                                                                                 
@@ -174,6 +183,7 @@ function registerPluginSettings()
     register_setting('powerlinkPluginSettings', 'pl-token');
 
     foreach ($wc_products as $wc_prod) {
+
         register_setting('powerlinkPluginSettings', 'pl-product-'.$wc_prod["Id"]);
     }
     foreach ($wc_shipping_methods as $wc_method) {
@@ -256,6 +266,7 @@ function getallpowerlinkproducts()
         $objects = array_merge($objects, $object);
     }
 
+
     return $objects;
 }
 
@@ -297,9 +308,6 @@ function getallwcproducts()
 function get_active_shipping_methods()
 {
     $active_methods   = array();
-
-
-
 
     // Get all your existing shipping zones IDS
     $zone_ids = array_keys(array('') + WC_Shipping_Zones::get_zones());
